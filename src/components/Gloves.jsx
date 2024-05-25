@@ -1,12 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
 
 const Gloves = () => {
+  const [gloves, setGloves] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [cartItems, setCartItems] = useState(() => {
     const savedCartItems = localStorage.getItem('cartItems');
     return savedCartItems ? JSON.parse(savedCartItems) : [];
   });
+
+  useEffect(() => {
+    fetch("http://localhost:3001/api/gloves")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setGloves(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching gloves:", error);
+        setLoading(false);
+      });
+  }, []);
 
   const addToCart = (product) => {
     setCartItems((prevCartItems) => {
@@ -24,31 +44,30 @@ const Gloves = () => {
     });
   };
 
-  const products = [
-    { id: 1, name: 'Rider CE Mens Glove', price: 114, image: '/images/glove1.png' },
-    { id: 2, name: 'TracTech Evo 4 Short CE Mens Glove', price: 311, image: '/images/glove2.png' },
-    { id: 3, name: 'Roadster 3 CE Mens Glove', price: 217, image: '/images/glove3.png' },
-    { id: 4, name: 'Pro Series Paragon 6 Heated CE Mens Waterproof Glove', price: 785, image: '/images/glove4.png' },
-    { id: 5, name: 'Storm 2 Textile CE Mens Waterproof Glove', price: 173, image: '/images/glove5.png' },
-    { id: 6, name: 'Pro Series Ranger CE Mens Waterproof Glove', price: 390, image: '/images/glove6.png' },
-    { id: 7, name: 'Shoreditch CE Mens Glove', price: 154, image: '/images/glove7.png' },
-    { id: 8, name: 'Pilot CE Mens Glove', price: 193, image: '/images/glove8.png' },
-    { id: 9, name: 'S-1 CE Mens Waterproof Glove', price: 331, image: '/images/glove9.png' },
-  ];
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="product-container">
       <Navbar cartItems={cartItems} />
       <div className="products">
-        {products.map((product) => (
-          <div key={product.id} className="product">
-            <img src={product.image} alt={product.name} />
-            <p style={{ fontFamily: 'fantasy' }}>{product.name}</p>
-            <p style={{ color: 'red', fontWeight: 'bold' , fontSize:'30px' }}>{product.price} DT</p>
-            <button onClick={() => addToCart(product)}>Add to Cart</button>
-            <button onClick={() => removeFromCart(product.id)}>Remove from Cart</button>
+        <h1>Gloves</h1>
+        {gloves.length === 0 ? (
+          <p>No products available.</p>
+        ) : (
+          <div className="product-grid">
+            {gloves.map((glove, index) => (
+              <div key={index} className="product">
+                <h2 style={{ fontFamily: 'fantasy' }}>{glove.name}</h2>
+                <p style={{ color: 'red', fontWeight: 'bold' , fontSize:'30px' }}>Price:{glove.price} DT</p>
+                <img src={glove.image} alt={glove.name} style={{ width: "350px", height: "350px" }}/>
+                <button onClick={() => addToCart(glove)}>Add to Cart</button>
+                <button onClick={() => removeFromCart(glove.id)}>Remove from Cart</button>
+              </div>
+            ))}
           </div>
-        ))}
+        )}
       </div>
       <Footer />
     </div>

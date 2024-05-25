@@ -1,12 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
 
 const Jackets = () => {
+  const [jackets, setJackets] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [cartItems, setCartItems] = useState(() => {
     const savedCartItems = localStorage.getItem('cartItems');
     return savedCartItems ? JSON.parse(savedCartItems) : [];
   });
+
+  useEffect(() => {
+    fetch("http://localhost:3001/api/products")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        const jacketsData = data.filter(product => product.category === 'jackets');
+        setJackets(jacketsData);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching jackets:", error);
+        setLoading(false);
+      });
+  }, []);
 
   const addToCart = (product) => {
     setCartItems((prevCartItems) => {
@@ -24,35 +45,30 @@ const Jackets = () => {
     });
   };
 
-  useEffect(() => {
-    localStorage.setItem('cartItems', JSON.stringify(cartItems));
-  }, [cartItems]);
-
-  const products = [
-    { id: 1, name: 'Tractech Evo 5 CE Mens Textile Jacket', price: 666, image: '/images/jacket1.png' },
-    { id: 2, name: 'RST X IOMTT / Team Hoodie ', price: 200, image: '/images/jacket2.png' },
-    { id: 3, name: 'Ranger CE Mens Textile Jacket', price: 1574, image: '/images/jacket3.png' },
-    { id: 4, name: 'RST Brixton CE Mens Textile Jacket', price: 824, image: '/images/jacket4.png' },
-    { id: 5, name: 'L2 ARMOUR SHIRT', price: 1550, image: '/images/jacket5.png' },
-    { id: 6, name: 'Ventilator XT CE Mens Textile Jacket', price: 706, image: '/images/jacket6.png' },
-    { id: 7, name: 'Roadster Air CE Mens Leather Jacket', price: 666, image: '/images/jacket7.png' },
-    { id: 8, name: 'RST Lumberjack CE Mens Textile Shirt', price: 139, image: '/images/jacket8.png' },
-    { id: 9, name: 'IOM TT Brandish 2 CE Mens Leather Jacket', price: 1150, image: '/images/jacket9.png' },
-  ];
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="product-container">
       <Navbar cartItems={cartItems} />
       <div className="products">
-        {products.map((product) => (
-          <div key={product.id} className="product">
-            <img src={product.image} alt={product.name} />
-            <p style={{ fontFamily: 'fantasy' }}>{product.name}</p>
-            <p style={{ color: 'red', fontWeight: 'bold' , fontSize:'30px' }}>{product.price} DT</p>
-            <button onClick={() => addToCart(product)}>Add to Cart</button>
-            <button onClick={() => removeFromCart(product.id)}>Remove from Cart</button>
+        <h1>Jackets</h1>
+        {jackets.length === 0 ? (
+          <p>No products available.</p>
+        ) : (
+          <div className="product-grid">
+            {jackets.map((jacket, index) => (
+              <div key={index} className="product">
+                <h2 style={{ fontFamily: 'fantasy' }}>{jacket.name}</h2>
+                <p style={{ color: 'red', fontWeight: 'bold' , fontSize:'30px' }}>Price: {jacket.price} DT</p>
+                <img src={jacket.image} alt={jacket.name} style={{ width: "350px", height: "350px" }}/>
+                <button onClick={() => addToCart(jacket)}>Add to Cart</button>
+                <button onClick={() => removeFromCart(jacket.id)}>Remove from Cart</button>
+              </div>
+            ))}
           </div>
-        ))}
+        )}
       </div>
       <Footer />
     </div>

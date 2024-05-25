@@ -10,21 +10,22 @@ import Signup from './components/Signup';
 import React, { useState } from 'react';
 import Blog from './components/Blog';
 
+
 const App = () => {
-  const [cart,] = useState([]); 
+  const [cart,] = useState([]);
   return (
     <Router>
       <div className='App'>
         <Routes>
-          <Route path='/' element={<Home />} />
+          <Route path='/' element={<Login />} />
+          <Route path='/signup' element={<Signup />} />
           <Route path='/jackets' element={<Jackets />} />
           <Route path='/jeans' element={<Jeans />} />
           <Route path='/gloves' element={<Gloves />} />
           <Route path='/contact' element={<Contact cart={cart} />} />
           <Route path='/contact' element={<Contact />} />
           <Route path='/blog' element={<Blog />} />
-          <Route path='/signup' element={<Signup />} />
-          <Route path='/login' element={<Login />} />   
+          <Route path='/home' element={<Home />} />
         </Routes>
       </div>
     </Router>

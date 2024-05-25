@@ -5,7 +5,7 @@ const Navbar = ({ cartItems }) => {
   const totalPrice = cartItems.reduce((sum, item) => sum + item.price, 0);
   return (
     <div className='Nav'>
-      <Link to="/">
+      <Link to="/home">
         <img src="/images/logo.png" className='logo' alt="Logo" />
       </Link>
       <div>

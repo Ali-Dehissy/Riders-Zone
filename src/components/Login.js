@@ -1,18 +1,17 @@
-import React, { Component, useState } from "react";
-import Navbar from "./Navbar2";
-import Footer from "./Footer";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const LoginComponent = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
-  function handleSubmit(e) {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
     console.log(email, password);
     fetch("http://localhost:3001/login", {
       method: "POST",
-      crossDomain: true,
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
@@ -26,62 +25,49 @@ export default function Login() {
       .then((res) => res.json())
       .then((data) => {
         console.log(data, "userRegister");
-        if (data.status == "ok") {
-          alert("login successful");
+        if (data.status.toLowerCase() === "ok") {
+          alert("Login successful");
           window.localStorage.setItem("token", data.data);
           window.localStorage.setItem("loggedIn", true);
-
-          window.location.href = "./userDetails";
+          navigate('/home');
+        } else {
+          alert("Login failed: " + data.error);
         }
+      })
+      .catch((error) => {
+        console.error("Error during login:", error);
+        alert("An error occurred during login. Please try again.");
       });
-  }
+  };
 
   return (
-    <div>
-      <Navbar />
-    
-    
-    <div className="auth-wrapper">
-      <div className="auth-inner">
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-      <form onSubmit={handleSubmit}>
-        <h3>Log In</h3>
-
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      
+      <form onSubmit={handleSubmit} style={{textAlign: 'center',}}>
+      <p style={{fontFamily: 'fantasy', fontWeight: 'Bold', fontSize: '25px',}}>Please enter your login Credentials :</p>
         <div className="mb-3">
-          <label>Email address</label>
+          <label style={{fontFamily: 'fantasy', fontWeight: 'Bold',}}>Email address</label>
           <input
             type="email"
-            className="form-control"
-            placeholder="Enter email"
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
-
         <div className="mb-3">
-          <label>Password</label>
+          <label style={{fontFamily: 'fantasy', fontWeight: 'Bold',}}>Password</label>
           <input
             type="password"
-            className="form-control"
-            placeholder="Enter password"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-
-        <div className="d-grid">
-          <button type="submit" className="btn btn-primary">
-            Submit
-          </button>
-        </div>
-        <p className="forgot-password text-right">
-          <a href="/sign-up">Sign Up</a>
-        </p>
+        <button type="submit" className="btn btn-primary">Login</button>
+        <a href='/signup' style={{fontFamily: 'fantasy', fontWeight: 'Bold',}}>Sign Up here</a>        
       </form>
     </div>
-      </div>
-    </div>
-    <Footer />
-    </div>
   );
-}
+};
+
+export default LoginComponent;
